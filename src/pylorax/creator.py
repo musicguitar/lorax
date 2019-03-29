@@ -177,7 +177,7 @@ def make_appliance(disk_img, name, template, outfile, networks=None, ram=1024,
         f.write(result)
 
 
-def make_runtime(opts, mount_dir, work_dir):
+def make_runtime(opts, mount_dir, work_dir, size=None):
     """
     Make the squashfs image from a directory
 
@@ -199,7 +199,7 @@ def make_runtime(opts, mount_dir, work_dir):
 
     rb = RuntimeBuilder(product, arch, fake_yum)
     log.info("Creating runtime")
-    rb.create_runtime(joinpaths(work_dir, RUNTIME), size=None)
+    rb.create_runtime(joinpaths(work_dir, RUNTIME), size=size)
 
 def rebuild_initrds_for_live(opts, sys_root_dir, results_dir):
     """
@@ -567,7 +567,8 @@ def run_creator(opts, cancel_func=None):
             disk_img = opts.disk_image or disk_img
             with PartitionMount(disk_img) as img_mount:
                 if img_mount and img_mount.mount_dir:
-                    make_runtime(opts, img_mount.mount_dir, work_dir)
+                    size = opts.live_rootfs_size or None
+                    make_runtime(opts, img_mount.mount_dir, work_dir, size)
                     result_dir = make_livecd(opts, img_mount.mount_dir, work_dir)
 
         # cleanup the mess
